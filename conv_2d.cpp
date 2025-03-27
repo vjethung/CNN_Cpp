@@ -150,6 +150,43 @@ public:
     conv2d_shape get_output_shape() const { return out_shape; }
 };
 
+void z_score_normalization(double input[],conv2d_shape in_shape, double epsilon ) {
+	int size=in_shape.height*in_shape.width;
+   for (int ic = 0; ic < in_shape.channels; ic++){
+	   
+		double mean = 0.0, std_dev = 0.0,sum=0;
+		
+		 for (int in_h = 0; in_h < in_shape.height; in_h++){
+			 for (int in_w = 0; in_w < in_shape.width; in_w++){
+			 	  int input_idx = ic*in_shape.height*in_shape.width + in_h*in_shape.width + in_w;
+			 	  mean += input[input_idx];		                            
+			 }
+		 }
+		 
+	 double mean = sum /size;
+	 
+	 for (int in_h = 0; in_h < kernel_sh.size[0]; in_h++){
+		for (int in_w = 0; in_w < kernel_sh.size[1]; in_w++){
+		 	  int input_idx = ic*in_shape.height*in_shape.width + in_h*in_shape.width + in_w;
+		 	 std_dev += (input[input_idx] - mean) * (input[input_idx] - mean);                    
+		}
+	 }
+     std_dev = sqrt(std_dev / size);
+     
+     for (int in_h = 0; in_h < kernel_sh.size[0]; in_h++){
+    		for (int in_w = 0; in_w < kernel_sh.size[1]; in_w++){
+    		 	  int input_idx = ic*in_shape.height*in_shape.width + in_h*in_shape.width + in_w;
+    		 	 normalized[i] = (input[i] - mean) / (std_dev+epsilon);
+    		}		                            
+    }
+  }
+}
+void relu(double input,conv2d_shape in_shape) {
+    for (int i = 0; i < in_shape.channel*in_shape.height*in_shape.width; i++) {
+        output[i] = fmax(0.0, input[i]);
+    }
+}
+
 
 int main() {   
     conv2d_shape input_shape = {1, 3, 5, 5};
